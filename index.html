@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      input.weapon {
+        visibility: hidden;
+      }
+      label {
+        cursor: pointer;
+      }
+      input:checked + i {
+        border: 5px solid blue;
+        border-radius: 10px;
+        padding:10px;
+      }
+      .loser + i {
+        border: 5px solid red !important;
+        border-radius: 10px;
+        padding:10px;
+      }
+      .winner + i {
+        border: 5px solid green !important;
+        border-radius: 10px;
+        padding:10px;
+      }
+      .large_font{
+        font-size:72px !important;
+      }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+  </head>
+  <body style="text-align:center;">
+    <div id="rpsContainer" style="display:none;">
+      <label>
+        <input class="weapon" type="radio" name="weapon" value="rock">
+        <i class="fa fa-hand-rock-o large_font" aria-hidden="true"></i>
+      </label>
+
+      <label>
+        <input class="weapon" type="radio" name="weapon" value="paper">
+        <i class="fa fa-hand-paper-o large_font" aria-hidden="true"></i>
+      </label>
+
+      <label>
+        <input class="weapon" type="radio" name="weapon" value="scissors">
+        <i class="fa fa-hand-scissors-o large_font" aria-hidden="true"></i>
+      </label>
+
+      <br>
+      <br>
+      <input id="goButton" type="submit" value="Go" name="Go" onclick="sendChoice()"/>
+      <input id="resetButton" type="submit" value="Reset" name="Reset" onclick="resetGame()" style="display:none;"/>
+    </div>
+    <p id="waitingMsg" style="display:none;">Waiting for other player...</p>
+    <p id="resultMsg" style="display:none;"></p>
+  </body>
+  <footer>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      var socket = io();
+      var name = prompt("Please enter your name", "Anonymous");
+
+      $(function () {
+        socket.on('alert', function(msg){
+          console.log(msg);
+        });
+
+        socket.on('rps', function(obj){
+          if (obj.gameReady){
+            console.log('Game is ready to be played');
+            $("#rpsContainer").show();
+          }
+
+          if (obj.gameEnd){
+            console.log('Game finished');
+            $("#resultMsg").text(obj.msg);
+            $("#resultMsg").show();
+            $("#resetButton").show();
+            $("#waitingMsg").hide();
+            if(obj.result){
+              var winnerWeapon = $("input[value="+ obj.result.winnerWeapon+ "]").addClass("winner");
+              var loserWeapon = $("input[value="+ obj.result.loserWeapon+ "]").addClass("loser");
+            }
+          }
+        });
+      });
+
+      function resetGame(){
+        $("input[name=weapon]").removeClass("winner").removeClass("loser");
+        $("input[name=weapon]").prop('checked', false);
+        $("#resetButton").hide();
+        $("#resultMsg").hide();
+        $("#goButton").show();
+      }
+
+      function sendChoice(){
+        var weapon = $('input[name=weapon]:checked').val();
+        socket.emit('game', {'weapon' : weapon, 'name' : name});
+        $("#waitingMsg").show();
+        $("#goButton").hide();
+      }
+    </script>
+  </footer>
+</html>

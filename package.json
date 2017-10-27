@@ -1,0 +1,18 @@
+{
+  "name": "rps",
+  "version": "1.0.0",
+  "description": "Rock, paper, scissors!",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Ben",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2",
+    "readline-sync": "^1.4.7",
+    "socket-io": "^1.0.0",
+    "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4"
+  }
+}
